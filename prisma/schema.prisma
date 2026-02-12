@@ -1,0 +1,49 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String      @id @default(cuid())
+  name          String?
+  email         String      @unique
+  image         String?
+  communities   Community[] @relation("AdminOf")
+  posts         Post[]
+  memberships   Membership[]
+}
+
+model Community {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  adminId     String
+  admin       User     @relation("AdminOf", fields: [adminId], references: [id])
+  posts       Post[]
+  members     Membership[]
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  content     String
+  createdAt   DateTime  @default(now())
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id])
+}
+
+model Membership {
+  userId      String
+  communityId String
+  user        User      @relation(fields: [userId], references: [id])
+  community   Community @relation(fields: [communityId], references: [id])
+
+  @@id([userId, communityId]) // Un utilisateur ne peut rejoindre qu'une fois la même communauté
+}
