@@ -1,31 +1,31 @@
 import CommunityCard from "./CommunityCard";
 
-interface CommunityWithMembers {
+interface Community {
   id: string;
   name: string;
   description: string | null;
   slug: string;
-  members: any[]; 
+  members: any[];
 }
 
-export default function Feed({ communities }: { communities: CommunityWithMembers[] }) {
+export default function Feed({ communities }: { communities: Community[] }) {
   if (communities.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
-        <p>Il n'y a pas encore de communautés ici. Soyez le premier à en créer une !</p>
+      <div className="flex flex-col items-center justify-center p-12 bg-white rounded-xl border-2 border-dashed border-slate-200">
+        <p className="text-slate-500 font-medium">Aucune communauté trouvée.</p>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {communities.map((community) => (
-        <CommunityCard
-          key={community.id}
-          name={community.name}
-          description={community.description}
-          slug={community.slug}
-          memberCount={community.members.length}
+    <div className="grid gap-4 w-full">
+      {communities.map((c) => (
+        <CommunityCard 
+          key={c.id} 
+          name={c.name} 
+          description={c.description} 
+          slug={c.slug} 
+          memberCount={c.members.length} 
         />
       ))}
     </div>
