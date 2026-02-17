@@ -1,6 +1,5 @@
-"use client"; // Obligatoire car on utilise un formulaire interactif (onSubmit)
-
-import React, { useState } from 'react';
+"use client";
+import { useState } from 'react';
 import { createCommunity } from '../actions/community';
 
 export default function CreateCommunityForm() {
@@ -9,60 +8,43 @@ export default function CreateCommunityForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
     const formData = new FormData(e.currentTarget);
-    const name = formData.get('name') as string;
-    const description = formData.get('description') as string;
-
     try {
-      // Pour l'instant, on passe un ID d'admin "test" 
-      // Plus tard, on récupérera l'ID de l'utilisateur connecté
-      await createCommunity(name, description, "user_test_123");
-      alert("Communauté créée !");
-      e.currentTarget.reset(); // Vide le formulaire
+      await createCommunity(formData.get('name') as string, formData.get('description') as string, "user_test_123");
+      alert("Succès !");
+      e.currentTarget.reset();
     } catch (error) {
-      console.error(error);
-      alert("Erreur lors de la création.");
+      alert("Erreur de création.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-        <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>Nom de la communauté</label>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-1">Nom</label>
         <input 
           name="name" 
+          className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          placeholder="Nom de la communauté"
           required 
-          placeholder="ex: Passion Cuisine" 
-          style={{ padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
         />
       </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-        <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>Description (optionnel)</label>
+      <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-1">Description</label>
         <textarea 
           name="description" 
-          placeholder="De quoi parle votre groupe ?" 
-          style={{ padding: '10px', borderRadius: '6px', border: '1px solid #ddd', minHeight: '80px', resize: 'vertical' }}
+          className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+          placeholder="Décrivez votre groupe..."
         />
       </div>
-
       <button 
         type="submit" 
         disabled={loading}
-        style={{ 
-          padding: '12px', 
-          backgroundColor: loading ? '#ccc' : '#0070f3', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '6px', 
-          fontWeight: 'bold',
-          cursor: loading ? 'not-allowed' : 'pointer'
-        }}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors disabled:bg-slate-300"
       >
-        {loading ? "Création..." : "Lancer la communauté"}
+        {loading ? "Création..." : "Créer la communauté"}
       </button>
     </form>
   );
