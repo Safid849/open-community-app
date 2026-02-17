@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import React, {useState } from "react";
 import { createPost } from "../actions/post";
 
 export default function CreatePostForm({ communityId, authorId }: { communityId: string, authorId: string }) {
