@@ -1,35 +1,50 @@
 "use client";
-import React, {useState } from "react";
+import React, { useState } from "react";
 import { createPost } from "../actions/post";
 
-export default function CreatePostForm({ communityId, authorId }: { communityId: string, authorId: string }) {
-  const [content, setContent] = useState("");
+interface CreatePostFormProps {
+  communityId: string;
+  authorId: string;
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
+export default function CreatePostForm({ communityId, authorId }: CreatePostFormProps) {
+  const [content, setContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
 
+    setIsSubmitting(true);
     try {
       await createPost(content, authorId, communityId);
       setContent("");
-      alert("Message publié !");
-      window.location.reload();
+      window.location.reload(); 
     } catch (error) {
       alert("Erreur lors de la publication.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+    <form onSubmit={handleSubmit} className="mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Quoi de neuf ?"
-        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', minHeight: '100px' }}
+        className="w-full p-3 text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none min-h-[100px]"
       />
-      <button type="submit" style={{ marginTop: '10px', padding: '10px 20px', backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-        Publier
-      </button>
+      
+      <div className="flex justify-end mt-3">
+        <button 
+          type="submit" 
+          disabled={isSubmitting || !content.trim()}
+          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold rounded-full transition-colors shadow-sm cursor-pointer"
+        >
+          {isSubmitting ? "Envoi..." : "Publier"}
+        </button>
+      </div>
     </form>
   );
 }
