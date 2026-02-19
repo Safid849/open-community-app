@@ -1,23 +1,30 @@
 "use client";
 import React, { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { createPost } from "../actions/post";
 
 interface CreatePostFormProps {
   communityId: string;
-  authorId: string;
 }
 
-export default function CreatePostForm({ communityId, authorId }: CreatePostFormProps) {
+export default function CreatePostForm({ communityId }: CreatePostFormProps) {
+  const { userId } = useAuth(); 
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = async (e: React.BaseSyntheticEvent) => {
+  const handleSubmit = async (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
+    
+    if (!userId) {
+      alert("Vous devez être connecté pour publier.");
+      return;
+    }
+    
     if (!content.trim()) return;
 
     setIsSubmitting(true);
     try {
-      await createPost(content, authorId, communityId);
+      await createPost(content, userId, communityId);
       setContent("");
       window.location.reload(); 
     } catch (error) {
@@ -32,15 +39,16 @@ export default function CreatePostForm({ communityId, authorId }: CreatePostForm
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="Quoi de neuf ?"
-        className="w-full p-3 text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none min-h-[100px]"
+        placeholder={userId ? "Quoi de neuf ?" : "Connectez-vous pour partager..."}
+        disabled={!userId} 
+        className="w-full p-3 text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none min-h-[100px] disabled:opacity-50"
       />
       
       <div className="flex justify-end mt-3">
         <button 
           type="submit" 
-          disabled={isSubmitting || !content.trim()}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold rounded-full transition-colors shadow-sm cursor-pointer"
+          disabled={isSubmitting || !content.trim() || !userId}
+          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold rounded-full transition-colors shadow-sm"
         >
           {isSubmitting ? "Envoi..." : "Publier"}
         </button>
