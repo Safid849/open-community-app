@@ -1,4 +1,6 @@
 import { prisma } from "../lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
 
 export async function getAllCommunities() {
   return await prisma.community.findMany({
@@ -11,17 +13,21 @@ export async function getAllCommunities() {
   });
 }
 
-export async function createCommunity(name: string, description: string, userId: string) {
+export async function createCommunity(name: string, description: string) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error("Vous devez être connecté pour créer une communauté.");
+  }
+
   const slug = name.toLowerCase().trim().replace(/\s+/g, '-');
 
-  return await prisma.community.create({
+  const newCommunity = await prisma.community.create({
     data: {
       name,
       description,
       slug,
-      admin: {
-        connect: { id: userId } 
-      },
+      adminId: userId, 
       members: {
         create: {
           userId: userId
@@ -29,4 +35,7 @@ export async function createCommunity(name: string, description: string, userId:
       }
     },
   });
+  revalidatePath("/");
+  
+  return newCommunity;
 }
